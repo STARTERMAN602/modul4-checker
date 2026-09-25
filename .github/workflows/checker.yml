@@ -1,4 +1,4 @@
-name: Evaluasi Modul 4 - Doubly dan Circular List
+name: Evaluasi Modul 4 - Circular List
 
 on:
   push:
@@ -17,6 +17,6 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -fsanitize=address test.cpp -o checker
 
-      - name: Jalankan Pengujian 15 Skenario
+      - name: Jalankan Pengujian 13 Skenario
         run: |
           ./checker
