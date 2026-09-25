@@ -1,0 +1,22 @@
+name: Evaluasi Modul 4 - Doubly dan Circular List
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  cek-skenario:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ambil Source Code
+        uses: actions/checkout@v4
+
+      - name: Kompilasi Program Penguji
+        # -fsanitize=address untuk memastikan Skenario 15 bebas dari memory leak
+        run: |
+          g++ -std=c++17 -Wall -fsanitize=address test.cpp -o checker
+
+      - name: Jalankan Pengujian 15 Skenario
+        run: |
+          ./checker
