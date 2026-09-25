@@ -7,15 +7,13 @@
 #if __has_include("modul4_playlist.cpp")
     #include "modul4_playlist.cpp"
 #else
-    #include "main.cpp" // antisipasi jika kamu menamai filenya main.cpp
+    #include "main.cpp" // antisipasi jika filenya bernama main.cpp
 #endif
 #undef main
 
-// Variabel penghitung skor
 int totalPassed = 0;
 int totalFailed = 0;
 
-// Fungsi helper untuk mencetak PASS atau FAIL tanpa menghentikan program
 void uji(int no, const std::string& namaSkenario, bool kondisi) {
     std::cout << (kondisi ? "[PASS] " : "[FAIL] ")
               << "Skenario " << (no < 10 ? " " : "") << no << ": "
@@ -27,170 +25,129 @@ void uji(int no, const std::string& namaSkenario, bool kondisi) {
     }
 }
 
-// ===============================================================
-// STRUKTUR & FUNGSI CIRCULAR SESUAI SUBBAB 3.5 & 3.6 (Halaman 34-35)
-// ===============================================================
-struct NodeCircular {
-    int data;
-    NodeCircular* next;
-};
-
-void tampilCircular(const NodeCircular* head) {
-    if (head == nullptr) return;
-    const NodeCircular* bantu = head;
-    do {
-        std::cout << bantu->data << ' ';
-        bantu = bantu->next;
-    } while (bantu != head);
-    std::cout << '\n';
-}
-
-// ===============================================================
-// PENGUJIAN 15 SKENARIO (Halaman 37 - 38)
-// ===============================================================
-void jalankan15Skenario() {
+void jalankan13Skenario() {
     std::cout << "============================================================\n";
-    std::cout << "        PENGUJIAN MODUL 4: DOUBLY & CIRCULAR LINKED LIST    \n";
+    std::cout << "       PENGUJIAN CIRCULAR DOUBLY LINKED LIST PLAYLIST       \n";
     std::cout << "============================================================\n\n";
 
-    // -----------------------------------------------------------
-    // PENGUJIAN DOUBLY LINKED LIST (Skenario 1 - 10)
-    // -----------------------------------------------------------
     Node* head = nullptr;
     Node* tail = nullptr;
 
-    // Skenario 1: Tampilkan DLL kosong -> Tidak ada data
+    // Skenario 1: Tampilkan Circular kosong
     {
         std::stringstream ss;
         std::streambuf* old = std::cout.rdbuf(ss.rdbuf());
         tampilMaju(head);
         std::cout.rdbuf(old);
         bool s1 = (head == nullptr && tail == nullptr);
-        uji(1, "Tampilkan DLL kosong -> Tidak ada data", s1);
+        uji(1, "Tampilkan Circular kosong", s1);
     }
 
-    // Skenario 2: Tambah lagu pertama -> head == tail
+    // Skenario 2: Tambah lagu pertama
     tambahAkhir(head, tail, {"Bohemian Rhapsody", "Queen"});
     bool s2 = (head != nullptr && tail != nullptr && head == tail);
-    uji(2, "Tambah lagu pertama -> head == tail", s2);
+    uji(2, "Tambah lagu pertama", s2);
 
-    // Skenario 3: Periksa satu node -> head->prev == nullptr dan tail->next == nullptr
-    bool s3 = (head != nullptr && tail != nullptr && head->prev == nullptr && tail->next == nullptr);
-    uji(3, "Periksa satu node -> head->prev == nullptr dan tail->next == nullptr", s3);
+    // Skenario 3: Circular satu node
+    // Pada circular 1 node: next dan prev harus menunjuk ke dirinya sendiri
+    bool s3 = (head != nullptr && tail != nullptr && 
+               head->next == head && head->prev == head &&
+               tail->next == tail && tail->prev == tail);
+    uji(3, "Circular satu node", s3);
 
-    // Skenario 4: Tambah beberapa lagu -> Urutan maju benar
+    // Skenario 4: Circular beberapa node
     tambahAkhir(head, tail, {"Imagine", "John Lennon"});
     tambahAkhir(head, tail, {"Hotel California", "Eagles"});
-    bool s4 = (head != nullptr && head->data.judul == "Bohemian Rhapsody" &&
+    // tail->next harus kembali ke head, dan head->prev harus menunjuk ke tail
+    bool s4 = (head != nullptr && tail != nullptr && 
+               tail->next == head && head->prev == tail);
+    uji(4, "Circular beberapa node", s4);
+
+    // Skenario 5: Tampilkan maju
+    // Urutan: Bohemian Rhapsody -> Imagine -> Hotel California
+    bool s5 = (head != nullptr && head->data.judul == "Bohemian Rhapsody" &&
                head->next != nullptr && head->next->data.judul == "Imagine" &&
-               tail != nullptr && tail->data.judul == "Hotel California");
-    uji(4, "Tambah beberapa lagu -> Urutan maju benar", s4);
+               head->next->next == tail && tail->data.judul == "Hotel California");
+    uji(5, "Tampilkan maju", s5);
 
-    // Skenario 5: Tampilkan mundur -> Urutan terbalik benar
-    bool s5 = (tail != nullptr && tail->data.judul == "Hotel California" &&
+    // Skenario 6: Tampilkan mundur
+    // Urutan mundur: Hotel California -> Imagine -> Bohemian Rhapsody
+    bool s6 = (tail != nullptr && tail->data.judul == "Hotel California" &&
                tail->prev != nullptr && tail->prev->data.judul == "Imagine" &&
-               tail->prev->prev == head);
-    uji(5, "Tampilkan mundur -> Urutan terbalik benar", s5);
+               tail->prev->prev == head && head->data.judul == "Bohemian Rhapsody");
+    uji(6, "Tampilkan mundur", s6);
 
-    // Skenario 6: Hapus lagu pertama -> head diperbarui dan head->prev == nullptr
+    // Skenario 7: Hapus lagu pertama
+    // Hapus head ("Bohemian Rhapsody"), head baru -> "Imagine", circular terjaga
     hapusJudul(head, tail, "Bohemian Rhapsody");
-    bool s6 = (head != nullptr && head->data.judul == "Imagine" && head->prev == nullptr);
-    uji(6, "Hapus lagu pertama -> head diperbarui dan head->prev == nullptr", s6);
+    bool s7 = (head != nullptr && tail != nullptr &&
+               head->data.judul == "Imagine" &&
+               head->prev == tail && tail->next == head);
+    uji(7, "Hapus lagu pertama", s7);
 
-    // Skenario 7: Hapus lagu tengah -> Hubungan prev dan next diperbaiki
-    tambahAkhir(head, tail, {"Yesterday", "The Beatles"}); // List: Imagine -> Hotel California -> Yesterday
-    hapusJudul(head, tail, "Hotel California");           // Hapus tengah
-    bool s7 = (head != nullptr && tail != nullptr && 
+    // Skenario 8: Hapus lagu tengah
+    // Tambah Yesterday -> list: Imagine <-> Hotel California <-> Yesterday
+    tambahAkhir(head, tail, {"Yesterday", "The Beatles"});
+    hapusJudul(head, tail, "Hotel California"); // Hapus node tengah
+    bool s8 = (head != nullptr && tail != nullptr &&
+               head->data.judul == "Imagine" && tail->data.judul == "Yesterday" &&
                head->next == tail && tail->prev == head &&
-               head->data.judul == "Imagine" && tail->data.judul == "Yesterday");
-    uji(7, "Hapus lagu tengah -> Hubungan prev dan next diperbaiki", s7);
+               tail->next == head && head->prev == tail);
+    uji(8, "Hapus lagu tengah", s8);
 
-    // Skenario 8: Hapus lagu terakhir -> tail diperbarui dan tail->next == nullptr
-    hapusJudul(head, tail, "Yesterday"); // Sisa: Imagine
-    bool s8 = (tail != nullptr && tail->data.judul == "Imagine" && tail->next == nullptr && head == tail);
-    uji(8, "Hapus lagu terakhir -> tail diperbarui dan tail->next == nullptr", s8);
+    // Skenario 9: Hapus lagu terakhir
+    // Hapus tail ("Yesterday"), tail baru -> "Imagine"
+    hapusJudul(head, tail, "Yesterday");
+    bool s9 = (head != nullptr && tail != nullptr && head == tail &&
+               head->data.judul == "Imagine" &&
+               head->next == head && head->prev == head);
+    uji(9, "Hapus lagu terakhir", s9);
 
-    // Skenario 9: Hapus satu-satunya lagu -> head dan tail menjadi nullptr
+    // Skenario 10: Hapus satu-satunya lagu
+    // Hapus lagu terakhir yang tersisa ("Imagine"), list harus kembali kosong
     hapusJudul(head, tail, "Imagine");
-    bool s9 = (head == nullptr && tail == nullptr);
-    uji(9, "Hapus satu-satunya lagu -> head dan tail menjadi nullptr", s9);
+    bool s10 = (head == nullptr && tail == nullptr);
+    uji(10, "Hapus satu-satunya lagu", s10);
 
-    // Skenario 10: Hapus judul tidak tersedia -> List tidak berubah
+    // Skenario 11: Hapus judul tidak tersedia
     tambahAkhir(head, tail, {"Lagu Tetap", "Artis"});
     hapusJudul(head, tail, "Judul Ngawur");
-    bool s10 = (head != nullptr && tail != nullptr && head->data.judul == "Lagu Tetap" && head == tail);
-    uji(10, "Hapus judul tidak tersedia -> List tidak berubah", s10);
+    bool s11 = (head != nullptr && tail != nullptr && 
+                head->data.judul == "Lagu Tetap" && head == tail &&
+                head->next == head && head->prev == head);
+    uji(11, "Hapus judul tidak tersedia", s11);
 
-    // -----------------------------------------------------------
-    // PENGUJIAN CIRCULAR LINKED LIST (Skenario 11 - 14)
-    // -----------------------------------------------------------
-    NodeCircular* cHead = nullptr;
-    NodeCircular* cLast = nullptr;
-
-    // Skenario 11: Circular kosong -> head dan last nullptr
-    bool s11 = (cHead == nullptr && cLast == nullptr);
-    uji(11, "Circular kosong -> head dan last nullptr", s11);
-
-    // Skenario 12: Circular satu node -> head == last dan head->next == head
-    NodeCircular* c1 = new NodeCircular{10, nullptr};
-    cHead = cLast = c1;
-    c1->next = cHead;
-    bool s12 = (cHead != nullptr && cHead == cLast && cHead->next == cHead);
-    uji(12, "Circular satu node -> head == last dan head->next == head", s12);
-
-    // Skenario 13: Circular beberapa node -> last->next == head
-    NodeCircular* c2 = new NodeCircular{20, nullptr};
-    c2->next = cHead;
-    cLast->next = c2;
-    cLast = c2;
-
-    NodeCircular* c3 = new NodeCircular{30, nullptr};
-    c3->next = cHead;
-    cLast->next = c3;
-    cLast = c3;
-
-    bool s13 = (cLast != nullptr && cLast->next == cHead);
-    uji(13, "Circular beberapa node -> last->next == head", s13);
-
-    // Skenario 14: Traversal circular -> Setiap node tampil tepat satu kali
+    // Skenario 12: Traversal circular
+    // Tambah lagu lagi, lalu traversal 1 siklus penuh, pastikan tepat jumlahnya dan tidak infinite loop
+    tambahAkhir(head, tail, {"Lagu Dua", "Artis"});
+    tambahAkhir(head, tail, {"Lagu Tiga", "Artis"});
     int hitungNode = 0;
-    NodeCircular* bantu = cHead;
-    if (bantu != nullptr) {
+    Node* current = head;
+    if (current != nullptr) {
         do {
             hitungNode++;
-            bantu = bantu->next;
-        } while (bantu != nullptr && bantu != cHead && hitungNode <= 10);
+            current = current->next;
+        } while (current != nullptr && current != head && hitungNode <= 10);
     }
-    bool s14 = (hitungNode == 3);
-    uji(14, "Traversal circular -> Setiap node tampil tepat satu kali", s14);
+    bool s12 = (hitungNode == 3 && current == head);
+    uji(12, "Traversal circular", s12);
 
-    // Bersihkan memori circular
-    delete c1;
-    delete c2;
-    delete c3;
-    cHead = cLast = nullptr;
-
-    // -----------------------------------------------------------
-    // PENGUJIAN CLEAR MEMORY (Skenario 15)
-    // -----------------------------------------------------------
-    // Skenario 15: clear playlist -> Seluruh node DLL dibebaskan
+    // Skenario 13: clear playlist
     clear(head, tail);
-    bool s15 = (head == nullptr && tail == nullptr);
-    uji(15, "clear playlist -> Seluruh node DLL dibebaskan", s15);
+    bool s13 = (head == nullptr && tail == nullptr);
+    uji(13, "clear playlist", s13);
 
     // ===========================================================
-    // RINGKASAN HASIL AKHIR
+    // RINGKASAN HASIL
     // ===========================================================
     std::cout << "\n============================================================\n";
-    std::cout << " TOTAL LOLOS (PASS) : " << totalPassed << " / 15\n";
-    std::cout << " TOTAL GAGAL (FAIL) : " << totalFailed << " / 15\n";
+    std::cout << " TOTAL LOLOS (PASS) : " << totalPassed << " / 13\n";
+    std::cout << " TOTAL GAGAL (FAIL) : " << totalFailed << " / 13\n";
     std::cout << "============================================================\n";
 }
 
 int main() {
-    jalankan15Skenario();
-
-    // Jika ada yang gagal, program keluar dengan kode error 1 agar GitHub Action tahu
+    jalankan13Skenario();
     if (totalFailed > 0) {
         return 1;
     }
