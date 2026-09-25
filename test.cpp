@@ -4,8 +4,8 @@
 
 // Trik: ubah fungsi main() mahasiswa menjadi student_main agar tidak konflik
 #define main student_main
-#if __has_include("modul4_playlist.cpp")
-    #include "modul4_playlist.cpp"
+#if __has_include("123250022_modul4_playlist.cpp")
+    #include "123250022_modul4_playlist.cpp"
 #else
     #include "main.cpp" // antisipasi jika filenya bernama main.cpp
 #endif
