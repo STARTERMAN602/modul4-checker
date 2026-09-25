@@ -13,19 +13,19 @@ struct Node {
 };
 
 bool judulTersedia(const Node* head, const std::string& judul) {
-
+    return false;
 }
 
 bool tambahAkhir(Node*& head, Node*& tail, const Lagu& data) {
-    
+    return false;
 }
 
 Node* cariJudul(Node* head, const std::string& judul) {
-
+    return nullptr;
 }
 
 bool hapusJudul(Node*& head, Node*& tail, const std::string& judul) {
-
+    return false;
 }
 
 void tampilMaju(const Node* head) {
@@ -37,7 +37,7 @@ void tampilMundur(const Node* tail) {
 }
 
 int jumlahData(const Node* head) {
-
+    return -1;
 }
 
 void clear(Node*& head, Node*& tail) {
